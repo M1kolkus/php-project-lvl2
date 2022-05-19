@@ -1,0 +1,17 @@
+{
+    "name": "hexlet/code",
+    "autoload": {
+        "psr-4": {
+            "Hexlet\\Code\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Torchyk Mikolai",
+            "email": "M1kolikus@yandex.by"
+        }
+    ],
+    "require": {
+        "docopt/docopt": "^1.0"
+    }
+}
