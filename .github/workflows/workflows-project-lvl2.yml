@@ -6,4 +6,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: PHP Composer
+        uses: baschny/php-composer-action@v1
       - run: make lint
