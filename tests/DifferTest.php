@@ -7,7 +7,7 @@ use function \src\Differ\genDiff\genDiff;
 
 class DifferTest extends TestCase
 {
-    public function testGenDiff()
+    public function testGenDiff(): void
     {
         $this->assertSame(
             file_get_contents(__DIR__ . "/fixtures/result.txt"),
