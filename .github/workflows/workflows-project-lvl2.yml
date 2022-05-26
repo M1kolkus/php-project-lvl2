@@ -9,3 +9,4 @@ jobs:
       - name: PHP Composer
         uses: baschny/php-composer-action@v1
       - run: make lint
+      - run: make test
