@@ -10,10 +10,10 @@ class DifferTest extends TestCase
     public function testGenDiff()
     {
         $this->assertSame(
-            file_get_contents("/home/alexander/domains/php-project-lvl2/tests/fixtures/result.txt"),
+            file_get_contents("/php-project-lvl2/tests/fixtures/result.txt"),
             genDiff(
-                "/home/alexander/domains/php-project-lvl2/tests/fixtures/file1.json",
-                "/home/alexander/domains/php-project-lvl2/tests/fixtures/file2.json"
+                "/php-project-lvl2/tests/fixtures/file1.json",
+                "/php-project-lvl2/tests/fixtures/file2.json"
             )
         );
     }
