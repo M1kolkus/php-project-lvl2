@@ -3,13 +3,16 @@
 
 namespace src\Differ\genDiff;
 
+use Symfony\Component\Yaml\Yaml;
+use SplFileInfo;
+
 function genDiff(string $pathToFile1, string $pathToFile2): string
 {
-    $content1 = file_get_contents($pathToFile1);
-    $content2 = file_get_contents($pathToFile2);
+    $jsonArray1 = extension($pathToFile1);
+    $jsonArray2 = extension($pathToFile2);
 
-    $jsonArray1 = json_decode($content1, true);
-    $jsonArray2 = json_decode($content2, true);
+    print_r($jsonArray1);
+    print_r($jsonArray2);
 
     $keys = array_merge($jsonArray1, $jsonArray2);
     ksort($keys);
@@ -65,4 +68,16 @@ function getLine(string $key, array $pathToFile1, array $pathToFile2): array
     $value = toString($pathToFile2[$key]);
 
     return ["+  {$key}: {$value}"];
+}
+
+function extension(string $nameFile)
+{
+    $info = new SplFileInfo($nameFile);
+    $extension = $info->getExtension();
+
+    if ($extension === 'json') {
+        return json_decode(file_get_contents($nameFile), true);
+    } elseif ($extension === 'yaml' || $extension === 'yml') {
+        return json_decode(json_encode(Yaml::parseFile($nameFile, Yaml::PARSE_OBJECT_FOR_MAP)), true);
+    }
 }

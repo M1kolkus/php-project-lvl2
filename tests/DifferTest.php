@@ -13,5 +13,10 @@ class DifferTest extends TestCase
             file_get_contents(__DIR__ . "/fixtures/result.txt"),
             genDiff(__DIR__ . "/fixtures/file1.json", __DIR__ . "/fixtures/file2.json")
         );
+
+        $this->assertSame(
+            file_get_contents(__DIR__ . "/fixtures/result.txt"),
+            genDiff(__DIR__ . "/fixtures/filepath1.yml", __DIR__ . "/fixtures/filepath2.yml")
+        );
     }
 }
