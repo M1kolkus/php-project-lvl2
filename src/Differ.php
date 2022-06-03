@@ -6,71 +6,175 @@ namespace src\Differ\genDiff;
 use Symfony\Component\Yaml\Yaml;
 use SplFileInfo;
 
-function genDiff(string $pathToFile1, string $pathToFile2): string
+function genDiff(string $pathToFile1, string $pathToFile2)
 {
-    $jsonArray1 = extension($pathToFile1);
-    $jsonArray2 = extension($pathToFile2);
+    $arr1 = parsers($pathToFile1);
+    $arr2 = parsers($pathToFile2);
 
-    print_r($jsonArray1);
-    print_r($jsonArray2);
+    $func = function (array $arr1, array $arr2) use (&$func): array {
+        $keys = array_merge(array_keys($arr1), array_keys($arr2));
+        $keys = array_unique($keys);
+        sort($keys);
 
-    $keys = array_merge($jsonArray1, $jsonArray2);
-    ksort($keys);
+        return array_reduce($keys, function (array $acc, string $key) use ($arr1, $arr2, $func) {
+            $existsInFirstArray = array_key_exists($key, $arr1);
+            $existsInSecondArray = array_key_exists($key, $arr2);
 
-    $result = array_map(function ($key) use ($jsonArray2, $jsonArray1) {
-        return getLine($key, $jsonArray1, $jsonArray2);
-    }, array_keys($keys));
+            $node = ['key' => $key];
+            $value = array_key_exists($key, $arr2) ? $arr2[$key] : $arr1[$key];
 
-    $result = array_merge(...$result);
+            if (is_array($value)) {
+                $node['type'] = 'object';
+                $value = $func($value, $value);
+            } else {
+                $node['type'] = 'simple';
+            }
 
-    $lines = ['{', ...$result, '}'];
+            if ($existsInFirstArray && $existsInSecondArray) {
+                if (is_array($arr1[$key]) && is_array($arr2[$key])) {
+                    $node['operation'] = 'not_changed';
+                    $value = $func($arr1[$key], $arr2[$key]);
+                } elseif ($arr1[$key] === $arr2[$key]) {
+                    $node['operation'] = 'not_changed';
+                } else {
+                    $node['operation'] = 'changed';
+                    $node['oldValue'] = is_array($arr1[$key]) ? $func($arr1[$key], $arr1[$key]) : $arr1[$key];
 
-    return implode("\n", $lines);
+                    if (is_array($arr1[$key]) !== is_array($arr2[$key])) {
+                        $node['old_type'] = is_array($arr1[$key]) ? 'object' : 'simple';
+                    }
+                }
+            } elseif ($existsInFirstArray) {
+                $node['operation'] = 'disappeared';
+            } else {
+                $node['operation'] = 'appeared';
+            }
+
+            $node['value'] = $value;
+
+            return [...$acc, $node];
+
+//            if (!$firstIsObject && !$secondIsObject && $existsInFirstArray && $existsInSecondArray) {
+//                if ($arr1[$key] === $arr2[$key]) {
+//                    $node = [
+//                        'key' => $key,
+//                        'type' => 'simple',
+//                        'operation' => 'not_changed',
+//                        'value' => $arr1[$key],
+//                    ];
+//                } else {
+//                    $node = [
+//                        'key' => $key,
+//                        'type' => 'simple',
+//                        'operation' => 'changed',
+//                        'oldValue' => $arr1[$key],
+//                        'newValue' => $arr2[$key],
+//                    ];
+//                }
+//
+//                return [...$acc, $node];
+//            }
+//
+//            if (!$firstIsObject && !$secondIsObject && $existsInFirstArray && !$existsInSecondArray) {
+//                if ($arr2 === []) {
+//                    $node = [
+//                        'key' => $key,
+//                        'type' => 'simple',
+//                        'operation' => 'not_changed',
+//                        'value' => $arr1[$key],
+//                    ];
+//                } else {
+//                    $node = [
+//                    'key' => $key,
+//                    'type' => 'simple',
+//                    'operation' => 'disappeared',
+//                    'value' => $arr1[$key],
+//                    ];
+//                }
+//                return [...$acc, $node];
+//            }
+//
+//
+//            if (!$firstIsObject && !$secondIsObject && !$existsInFirstArray && $existsInSecondArray) {
+//                $node = [
+//                    'key' => $key,
+//                    'type' => 'simple',
+//                    'operation' => 'appeared',
+//                    'value' => $arr2[$key],
+//                ];
+//
+//                return [...$acc, $node];
+//            }
+//
+//            if ($firstIsObject && $secondIsObject) {
+//                $node = [
+//                    'key' => $key,
+//                    'type' => 'object',
+//                    'operation' => 'not_changed',
+//                    'value' => $func($arr1[$key], $arr2[$key]),
+//                ];
+//
+//                return [...$acc, $node];
+//            }
+//            if ($firstIsObject && $arr2 === []) {
+//                $node = [
+//                    'key' => $key,
+//                    'type' => 'object',
+//                    'operation' => 'not_changed',
+//                    'value' => $func($arr1[$key]),
+//                ];
+//
+//
+//                return [...$acc, $node];
+//            }
+//
+//            if (!$firstIsObject && $arr2 === []) {
+//                $node = [
+//                    'key' => $key,
+//                    'type' => 'simple',
+//                    'operation' => 'not_changed',
+//                    'value' => $arr1[$key],
+//                ];
+//
+//
+//                return [...$acc, $node];
+//            }
+//
+//            if ($firstIsObject && !$secondIsObject) {
+//                if ($existsInSecondArray) {
+//                    $node = [
+//                        'key' => $key,
+//                        'oldType'   => 'object',
+//                        'newType'   => 'simple',
+//                        'operation' => 'changed',
+//                        'oldValue' => $func($arr1[$key]),
+//                        'newValue' => $arr2[$key],
+//                    ];
+//                    return [...$acc, $node];
+//                }
+//                $node = [
+//                    'key' => $key,
+//                    'type' => 'object',
+//                    'operation' => 'disappeared',
+//                    'value' => $func($arr1[$key]),
+//                ];
+//            } else {
+//                $node = [
+//                    'key' => $key,
+//                    'type' => 'object',
+//                    'operation' => 'appeared',
+//                    'value' => $func($arr2[$key]),
+//                ];
+//            }
+//            return [...$acc, $node];
+        }, []);
+    };
+
+    $result = $func($arr1, $arr2);
+    return stringify($result);
 }
 
-function toString($value): string
-{
-    if (is_bool($value)) {
-        return $value ? 'true' : 'false';
-    }
-
-    if ($value === null) {
-        return 'null';
-    }
-
-    return (string)$value;
-}
-
-function getLine(string $key, array $pathToFile1, array $pathToFile2): array
-{
-    if (array_key_exists($key, $pathToFile1) && array_key_exists($key, $pathToFile2)) {
-        if ($pathToFile1[$key] === $pathToFile2[$key]) {
-            $value = toString($pathToFile1[$key]);
-
-            return ["   {$key}: {$value}"];
-        }
-
-        $value1 = toString($pathToFile1[$key]);
-        $value2 = toString($pathToFile2[$key]);
-
-        return [
-            "-  {$key}: {$value1}",
-            "+  {$key}: {$value2}",
-        ];
-    }
-
-    if (array_key_exists($key, $pathToFile1)) {
-        $value = toString($pathToFile1[$key]);
-
-        return ["-  {$key}: {$value}"];
-    }
-
-    $value = toString($pathToFile2[$key]);
-
-    return ["+  {$key}: {$value}"];
-}
-
-function extension(string $nameFile)
+function parsers(string $nameFile): array
 {
     $info = new SplFileInfo($nameFile);
     $extension = $info->getExtension();
@@ -78,6 +182,72 @@ function extension(string $nameFile)
     if ($extension === 'json') {
         return json_decode(file_get_contents($nameFile), true);
     } elseif ($extension === 'yaml' || $extension === 'yml') {
-        return json_decode(json_encode(Yaml::parseFile($nameFile, Yaml::PARSE_OBJECT_FOR_MAP)), true);
+        return Yaml::parseFile($nameFile);
     }
 }
+
+function stringify($value, string $replacer = '  ', int $spacesCount = 1): string
+{
+    $iter = function ($currentValue, $level = 1) use (&$iter, $replacer, $spacesCount) {
+        if (is_string($currentValue) || is_numeric($currentValue)) {
+            return (string)$currentValue;
+        }
+
+        if (is_bool($currentValue)) {
+            return $currentValue ? 'true' : 'false';
+        }
+
+        if ($currentValue === null) {
+            return 'null';
+        }
+
+        $currentReplacer = getReplacer($replacer, $spacesCount, $level);
+
+        $lines = array_map(function ($value) use ($level, $iter, $currentReplacer) {
+            $sign = '';
+            if ($value['operation'] === 'not_changed') {
+                $sign = '  ';
+            }
+
+            if ($value['operation'] === 'disappeared') {
+                $sign = '- ';
+            }
+
+            if ($value['operation'] === 'appeared') {
+                $sign = '+ ';
+            }
+
+            $spaceValue = $value['value'] === '' ? '' : ' ';
+
+            if ($value['operation'] === 'changed') {
+                $spaceOldValue = $value['oldValue'] === '' ? '' : ' ';
+
+                return [
+                        "{$currentReplacer}- {$value['key']}:$spaceOldValue{$iter($value['oldValue'], $level + 2)}",
+                        "{$currentReplacer}+ {$value['key']}:$spaceValue{$iter($value['value'], $level + 2)}",
+                    ];
+            }
+
+            return ["{$currentReplacer}{$sign}{$value['key']}:$spaceValue{$iter($value['value'], $level + 2)}"];
+        },
+            $currentValue);
+
+        $lines = array_merge(...$lines);
+        $lines = ['{', ...$lines, getReplacer($replacer, $spacesCount, $level - 1) . '}'];
+
+        return implode("\n", $lines);
+    };
+
+    return $iter($value);
+}
+
+
+function getReplacer(string $replacer, int $spacesCount, int $level): string
+{
+    return str_repeat($replacer, $spacesCount * $level);
+}
+
+//var_dump(genDiff(
+//    '/home/alexander/domains/php-project-lvl2/tests/fixtures/file1.json',
+//    '/home/alexander/domains/php-project-lvl2/tests/fixtures/file2.json',
+//));
