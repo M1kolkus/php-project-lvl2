@@ -173,18 +173,6 @@ function genDiff(string $pathToFile1, string $pathToFile2)
     return stringify($result);
 }
 
-//function parsers(string $nameFile): array
-//{
-//    $info = new SplFileInfo($nameFile);
-//    $extension = $info->getExtension();
-//
-//    if ($extension === 'json') {
-//        return json_decode(file_get_contents($nameFile), true);
-//    } elseif ($extension === 'yaml' || $extension === 'yml') {
-//        return Yaml::parseFile($nameFile);
-//    }
-//}
-
 function stringify($value, string $replacer = '  ', int $spacesCount = 1): string
 {
     $iter = function ($currentValue, $level = 1) use (&$iter, $replacer, $spacesCount) {
@@ -245,8 +233,3 @@ function getReplacer(string $replacer, int $spacesCount, int $level): string
 {
     return str_repeat($replacer, $spacesCount * $level);
 }
-
-//var_dump(genDiff(
-//    '/home/alexander/domains/php-project-lvl2/tests/fixtures/file1.json',
-//    '/home/alexander/domains/php-project-lvl2/tests/fixtures/file2.json',
-//));
