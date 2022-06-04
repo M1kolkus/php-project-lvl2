@@ -1,10 +1,9 @@
 #!/usr/bin/env php
 <?php
 
-namespace src\Differ\genDiff;
+namespace src\Differ;
 
-use Symfony\Component\Yaml\Yaml;
-use SplFileInfo;
+use function src\Parsers\parsers;
 
 function genDiff(string $pathToFile1, string $pathToFile2)
 {
@@ -174,17 +173,17 @@ function genDiff(string $pathToFile1, string $pathToFile2)
     return stringify($result);
 }
 
-function parsers(string $nameFile): array
-{
-    $info = new SplFileInfo($nameFile);
-    $extension = $info->getExtension();
-
-    if ($extension === 'json') {
-        return json_decode(file_get_contents($nameFile), true);
-    } elseif ($extension === 'yaml' || $extension === 'yml') {
-        return Yaml::parseFile($nameFile);
-    }
-}
+//function parsers(string $nameFile): array
+//{
+//    $info = new SplFileInfo($nameFile);
+//    $extension = $info->getExtension();
+//
+//    if ($extension === 'json') {
+//        return json_decode(file_get_contents($nameFile), true);
+//    } elseif ($extension === 'yaml' || $extension === 'yml') {
+//        return Yaml::parseFile($nameFile);
+//    }
+//}
 
 function stringify($value, string $replacer = '  ', int $spacesCount = 1): string
 {
