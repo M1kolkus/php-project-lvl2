@@ -47,7 +47,7 @@ function toPlain($value, $parents): string
     return implode("\n", array_filter($lines, fn ($value) => !is_null($value)));
 }
 
-function string($node): string
+function string($node)
 {
     $string = '';
     if (is_numeric($node)) {
@@ -65,5 +65,6 @@ function string($node): string
     if ($node === null) {
         $string = 'null';
     }
+
     return $string;
 }

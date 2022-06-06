@@ -2,7 +2,7 @@
 
 namespace src\Formatters\Stylish;
 
-function format($value): string
+function format(array $value): string
 {
     $iter = function ($currentValue, $level = 1) use (&$iter) {
         if (is_string($currentValue) || is_numeric($currentValue)) {
