@@ -28,8 +28,7 @@ function toPlain($value, $parents): string
         if ($node['operation'] === 'changed') {
             $stringOldValue = string($node['oldValue']);
 
-            if (array_key_exists('oldType', $node) &&
-                $node['oldType'] === 'object') {
+            if (array_key_exists('oldType', $node) && $node['oldType'] === 'object') {
                 $stringOldValue = '[complex value]';
             }
 
@@ -45,7 +44,7 @@ function toPlain($value, $parents): string
         }
     }, $value);
 
-    return implode("\n", array_filter($lines, fn ($value) => !is_null($value)));
+    return implode("\n", array_filter($lines, fn($value) => !is_null($value)));
 }
 
 function string($node): string
