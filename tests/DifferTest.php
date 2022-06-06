@@ -24,12 +24,12 @@ class DifferTest extends TestCase
     {
         $this->assertSame(
             file_get_contents(__DIR__ . "/fixtures/resultPlain.txt"),
-            genDiff(__DIR__ . "/fixtures/file1.json", __DIR__ . "/fixtures/file2.json")
+            genDiff(__DIR__ . "/fixtures/file1.json", __DIR__ . "/fixtures/file2.json", 'plain')
         );
 
         $this->assertSame(
             file_get_contents(__DIR__ . "/fixtures/resultPlain.txt"),
-            genDiff(__DIR__ . "/fixtures/filepath1.yml", __DIR__ . "/fixtures/filepath2.yml")
+            genDiff(__DIR__ . "/fixtures/filepath1.yml", __DIR__ . "/fixtures/filepath2.yml", 'plain')
         );
     }
 }
