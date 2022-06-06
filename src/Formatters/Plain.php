@@ -28,7 +28,8 @@ function toPlain($value, $parents): string
         if ($node['operation'] === 'changed') {
             $stringOldValue = string($node['oldValue']);
 
-            if (array_key_exists('oldType', $node) && $node['oldType'] === 'object') {
+            if (array_key_exists('oldType', $node) &&
+                $node['oldType'] === 'object') {
                 $stringOldValue = '[complex value]';
             }
 
@@ -49,21 +50,19 @@ function toPlain($value, $parents): string
 
 function string($node): string
 {
-    $string = '';
     if (is_numeric($node)) {
-        $string = (string)$node;
+        return (string)$node;
     }
 
     if (is_string($node)) {
-        $string = '\'' . (string)$node . '\'';
+        return '\'' . (string)$node . '\'';
     }
 
     if (is_bool($node)) {
-        $string = $node ? 'true' : 'false';
+        return $node ? 'true' : 'false';
     }
 
     if ($node === null) {
-        $string = 'null';
+        return 'null';
     }
-    return $string;
 }
