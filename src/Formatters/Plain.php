@@ -65,5 +65,6 @@ function string($node): string
     if ($node === null) {
         $string = 'null';
     }
+
     return $string;
 }
