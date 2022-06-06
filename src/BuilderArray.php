@@ -33,7 +33,7 @@ function buildDiff(array $arr1, array $arr2): array
                 $node['oldValue'] = is_array($arr1[$key]) ? buildDiff($arr1[$key], $arr1[$key]) : $arr1[$key];
 
                 if (is_array($arr1[$key]) !== is_array($arr2[$key])) {
-                    $node['old_type'] = is_array($arr1[$key]) ? 'object' : 'simple';
+                    $node['oldType'] = is_array($arr1[$key]) ? 'object' : 'simple';
                 }
             }
         } elseif ($existsInFirstArray) {
