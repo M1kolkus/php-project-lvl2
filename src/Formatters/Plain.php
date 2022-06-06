@@ -44,24 +44,26 @@ function toPlain($value, $parents): string
         }
     }, $value);
 
-    return implode("\n", array_filter($lines, fn($value) => !is_null($value)));
+    return implode("\n", array_filter($lines, fn ($value) => !is_null($value)));
 }
 
 function string($node): string
 {
+    $string = '';
     if (is_numeric($node)) {
-        return (string)$node;
+        $string = (string)$node;
     }
 
     if (is_string($node)) {
-        return '\'' . (string)$node . '\'';
+        $string = '\'' . (string)$node . '\'';
     }
 
     if (is_bool($node)) {
-        return $node ? 'true' : 'false';
+        $string = $node ? 'true' : 'false';
     }
 
     if ($node === null) {
-        return 'null';
+        $string = 'null';
     }
+    return $string;
 }
