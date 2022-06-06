@@ -16,4 +16,3 @@ function genDiff(string $pathToFile1, string $pathToFile2, string $formatName = 
 
     return format($buildDiff, $formatName);
 }
-
