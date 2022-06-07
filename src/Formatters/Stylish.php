@@ -39,12 +39,12 @@ function format(array $value): string
                 $spaceOldValue = $value['oldValue'] === '' ? '' : ' ';
 
                 return [
-                    "{$currentReplacer}- {$value['key']}: {$iter($value['oldValue'], $level + 2)}",
-                    "{$currentReplacer}+ {$value['key']}: {$iter($value['value'], $level + 2)}",
+                    "{$currentReplacer}- {$value['key']}:{$spaceOldValue}{$iter($value['oldValue'], $level + 2)}",
+                    "{$currentReplacer}+ {$value['key']}:{$spaceValue}{$iter($value['value'], $level + 2)}",
                 ];
             }
 
-            return ["{$currentReplacer}{$sign}{$value['key']}: {$iter($value['value'], $level + 2)}"];
+            return ["{$currentReplacer}{$sign}{$value['key']}:{$spaceValue}{$iter($value['value'], $level + 2)}"];
         },
             $currentValue);
 
