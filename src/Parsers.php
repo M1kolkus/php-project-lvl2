@@ -20,5 +20,5 @@ function parsers(string $nameFile): array
         return [];
     }
 
-    return json_decode(file_get_contents($nameFile), true);
+    return json_decode($content, true);
 }
