@@ -5,10 +5,10 @@ namespace src\BuilderArray;
 function buildDiff(array $arr1, array $arr2): array
 {
     $keys = array_merge(array_keys($arr1), array_keys($arr2));
-    $keys = array_unique($keys);
-    sort($keys);
+    $newKeys = array_unique($keys);
+    sort($newKeys);
 
-    return array_reduce($keys, function (array $acc, string $key) use ($arr1, $arr2) {
+    return array_reduce($newKeys, function (array $acc, string $key) use ($arr1, $arr2) {
         $existsInFirstArray = array_key_exists($key, $arr1);
         $existsInSecondArray = array_key_exists($key, $arr2);
 
