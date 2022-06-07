@@ -44,7 +44,7 @@ function format(array $value): string
                 ];
             }
 
-            return ["{$currentReplacer}{$sign}{$value['key']}:{$spaceValue}{$iter($value['value'], $level + 2)}"];
+            return ["{$currentReplacer}{$sign}{$value['key']}: {$iter($value['value'], $level + 2)}"];
         },
             $currentValue);
 
