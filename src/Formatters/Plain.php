@@ -2,19 +2,20 @@
 
 namespace src\Formatters\Plain;
 
-function format($value): string
+function format(array $value): string
 {
     return toPlain($value, '');
 }
 
-function toPlain($value, $parents): string
+function toPlain(array $value, string $parents): string
 {
     $lines = array_map(function ($node) use ($parents) {
-        $stringNewValue = string($node['value']);
         $path = "{$parents}{$node['key']}";
 
         if ($node['type'] === 'object') {
             $stringNewValue = '[complex value]';
+        } else {
+            $stringNewValue = string($node['value']);
         }
 
         if ($node['operation'] === 'appeared') {
@@ -26,10 +27,10 @@ function toPlain($value, $parents): string
         }
 
         if ($node['operation'] === 'changed') {
-            $stringOldValue = string($node['oldValue']);
-
             if (array_key_exists('oldType', $node) && $node['oldType'] === 'object') {
                 $stringOldValue = '[complex value]';
+            } else {
+                $stringOldValue = string($node['oldValue']);
             }
 
             return "Property '{$path}' was updated. From {$stringOldValue} to {$stringNewValue}";
@@ -39,32 +40,25 @@ function toPlain($value, $parents): string
             return toPlain($node['value'], "{$path}.");
         }
 
-        if ($node['operation'] === 'not_changed') {
-            return null;
-        }
+        return null;
     }, $value);
 
     return implode("\n", array_filter($lines, fn ($value) => !is_null($value)));
 }
 
-function string($node): string
+function string(mixed $node): string
 {
-    $string = '';
     if (is_numeric($node)) {
-        $string = (string)$node;
-    }
-
-    if (is_string($node)) {
-        $string = '\'' . (string)$node . '\'';
+        return (string)$node;
     }
 
     if (is_bool($node)) {
-        $string = $node ? 'true' : 'false';
+        return $node ? 'true' : 'false';
     }
 
     if ($node === null) {
-        $string = 'null';
+        return 'null';
     }
 
-    return $string;
+    return '\'' . (string)$node . '\'';
 }

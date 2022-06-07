@@ -7,15 +7,13 @@ use src\Formatters\Plain;
 
 function format(array $buildDiff, string $format): string
 {
-    if ($format === 'stylish') {
-        return Stylish\format($buildDiff);
-    }
-
     if ($format === 'plain') {
         return Plain\format($buildDiff);
     }
 
     if ($format === 'json') {
-        return  json_encode($buildDiff);
+        return json_encode($buildDiff);
     }
+
+    return Stylish\format($buildDiff);
 }

@@ -18,7 +18,7 @@ function buildDiff(array $arr1, array $arr2): array
 
         if (is_array($value)) {
             $type = 'object';
-            $value = buildDiff($value, $value);
+            $newValue = buildDiff($value, $value);
         } else {
             $type = 'simple';
         }
@@ -48,7 +48,7 @@ function buildDiff(array $arr1, array $arr2): array
             'type' => $type,
             'oldType' => $oldType ?? null,
             'operation' => $operation,
-            'value' => $valueChildren ?? $value,
+            'value' => $valueChildren ?? $newValue ?? $value,
             'oldValue' => $oldValue ?? null,
         ];
 
