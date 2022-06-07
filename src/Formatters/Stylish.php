@@ -33,14 +33,14 @@ function format(array $value): string
                 $sign = '+ ';
             }
 
-            $spaceValue = $value['value'] === '' ? '' : ' ';
+//            $spaceValue = $value['value'] === '' ? '' : ' ';
 
             if ($value['operation'] === 'changed') {
-                $spaceOldValue = $value['oldValue'] === '' ? '' : ' ';
+//                $spaceOldValue = $value['oldValue'] === '' ? '' : ' ';
 
                 return [
-                    "{$currentReplacer}- {$value['key']}:{$spaceOldValue}{$iter($value['oldValue'], $level + 2)}",
-                    "{$currentReplacer}+ {$value['key']}:{$spaceValue}{$iter($value['value'], $level + 2)}",
+                    "{$currentReplacer}- {$value['key']}: {$iter($value['oldValue'], $level + 2)}",
+                    "{$currentReplacer}+ {$value['key']}: {$iter($value['value'], $level + 2)}",
                 ];
             }
 
