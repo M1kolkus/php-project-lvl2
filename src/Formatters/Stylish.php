@@ -20,38 +20,22 @@ function format(array $value): string
         $currentReplacer = getReplacer('  ', 1, $level);
 
         $lines = array_map(function ($value) use ($level, $iter, $currentReplacer) {
-            $sign = '';
-            if ($value['operation'] === 'not_changed') {
-                $sign = '  ';
-            }
-
-            if ($value['operation'] === 'disappeared') {
-                $sign = '- ';
-            }
-
-            if ($value['operation'] === 'appeared') {
-                $sign = '+ ';
-            }
-
-//            $spaceValue = $value['value'] === '' ? '' : ' ';
-
             if ($value['operation'] === 'changed') {
-//                $spaceOldValue = $value['oldValue'] === '' ? '' : ' ';
-
                 return [
                     "{$currentReplacer}- {$value['key']}: {$iter($value['oldValue'], $level + 2)}",
                     "{$currentReplacer}+ {$value['key']}: {$iter($value['value'], $level + 2)}",
                 ];
             }
 
+            $sign = getSign($value['operation']);
+
             return ["{$currentReplacer}{$sign}{$value['key']}: {$iter($value['value'], $level + 2)}"];
-        },
-            $currentValue);
+        }, $currentValue);
 
-        $lines = array_merge(...$lines);
-        $lines = ['{', ...$lines, getReplacer('  ', 1, $level - 1) . '}'];
+        $mergedLines = array_merge(...$lines);
+        $result = ['{', ...$mergedLines, getReplacer('  ', 1, $level - 1) . '}'];
 
-        return implode("\n", $lines);
+        return implode("\n", $result);
     };
 
     return $iter($value);
@@ -60,4 +44,21 @@ function format(array $value): string
 function getReplacer(string $replacer, int $spacesCount, int $level): string
 {
     return str_repeat($replacer, $spacesCount * $level);
+}
+
+function getSign(string $operation): string
+{
+    if ($operation === 'not_changed') {
+        return '  ';
+    }
+
+    if ($operation === 'disappeared') {
+        return '- ';
+    }
+
+    if ($operation === 'appeared') {
+        return '+ ';
+    }
+
+    return '';
 }
