@@ -3,9 +3,11 @@
 namespace Differ\Differ;
 
 use SplFileInfo;
+
 use function Functional\sort;
 use function Differ\Parsers\getParsers;
 use function Differ\Formatters\format;
+
 use const Differ\Formatters\FORMAT_STYLISH;
 
 function genDiff(string $pathToFile1, string $pathToFile2, string $formatName = FORMAT_STYLISH): string
