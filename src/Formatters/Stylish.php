@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Formatters\Stylish;
+namespace Differ\Formatters\Stylish;
 
 function format(array $value): string
 {

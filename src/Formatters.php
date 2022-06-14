@@ -1,19 +1,23 @@
 <?php
 
-namespace src\Formatters;
+namespace Differ\Formatters;
 
-use src\Formatters\Stylish;
-use src\Formatters\Plain;
+use Differ\Formatters\Stylish;
+use Differ\Formatters\Plain;
 
-function format(array $buildDiff, string $format): string
+const FORMAT_STYLISH = 'stylish';
+const FORMAT_PLAIN = 'plain';
+const FORMAT_JSON = 'json';
+
+function format(string $format): callable
 {
-    if ($format === 'plain') {
-        return Plain\format($buildDiff);
+    if ($format === FORMAT_PLAIN) {
+        return Plain\format(...);
     }
 
-    if ($format === 'json') {
-        return json_encode($buildDiff);
+    if ($format === FORMAT_JSON) {
+        return json_encode(...);
     }
 
-    return Stylish\format($buildDiff);
+    return Stylish\format(...);
 }

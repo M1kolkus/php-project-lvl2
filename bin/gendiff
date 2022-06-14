@@ -1,8 +1,15 @@
 #!/usr/bin/env php
-
 <?php
 
-require_once  __DIR__ . '/../vendor/autoload.php';
+use function Differ\Differ\genDiff;
+
+$autoloadPath1 = __DIR__ . 'BrainGames/../../../autoload.php';
+$autoloadPath2 = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($autoloadPath1)) {
+    require_once $autoloadPath1;
+} else {
+    require_once $autoloadPath2;
+}
 
 $doc = <<<DOC
 
@@ -22,5 +29,4 @@ DOC;
 
 $args = Docopt::handle($doc, ['version' => 'Generate diff 1.0']);
 
-
-echo \Differ\Differ\genDiff($args['<firstFile>'], $args['<secondFile>'], $args['--format']);
+echo genDiff($args['<firstFile>'], $args['<secondFile>'], $args['--format']);

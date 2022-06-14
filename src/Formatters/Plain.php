@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Formatters\Plain;
+namespace Differ\Formatters\Plain;
 
 function format(array $value): string
 {

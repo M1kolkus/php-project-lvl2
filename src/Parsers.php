@@ -1,24 +1,14 @@
 <?php
 
-namespace src\Parsers;
+namespace Differ\Parsers;
 
 use Symfony\Component\Yaml\Yaml;
-use SplFileInfo;
 
-function parsers(string $nameFile): array
+function getParsers(string $extension): callable
 {
-    $info = new SplFileInfo($nameFile);
-    $extension = $info->getExtension();
-
     if ($extension === 'yaml' || $extension === 'yml') {
-        return Yaml::parseFile($nameFile);
+        return Yaml::parseFile(...);
     }
 
-    $content = file_get_contents($nameFile);
-
-    if ($content === false) {
-        return [];
-    }
-
-    return json_decode($content, true);
+    return json_decode(...);
 }
