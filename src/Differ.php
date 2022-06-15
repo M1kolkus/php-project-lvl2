@@ -27,7 +27,7 @@ function getComponent(string $pathToFile): array
     $info = new SplFileInfo($pathToFile);
     $extension = $info->getExtension();
     $parser = getParser($extension);
-    $content = $extension === 'yml' || $extension === 'yaml' ? $pathToFile : file_get_contents($pathToFile);
+    $content = file_get_contents($pathToFile);
 
     return $parser($content);
 }
