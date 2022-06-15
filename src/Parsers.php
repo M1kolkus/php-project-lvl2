@@ -4,11 +4,10 @@ namespace Differ\Parsers;
 
 use Symfony\Component\Yaml\Yaml;
 
-function getParsers(string $extension): callable
+function getParser(string $extension): callable
 {
-    if ($extension === 'yaml' || $extension === 'yml') {
-        return Yaml::parseFile(...);
-    }
-
-    return json_decode(...);
+    return match (strtolower($extension)) {
+        'yaml', 'yml' => fn(string $content) => Yaml::parseFile($content),
+        default => fn(string $content) => json_decode($content, true),
+    };
 }

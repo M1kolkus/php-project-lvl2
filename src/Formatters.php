@@ -11,13 +11,9 @@ const FORMAT_JSON = 'json';
 
 function format(string $format): callable
 {
-    if ($format === FORMAT_PLAIN) {
-        return Plain\format(...);
-    }
-
-    if ($format === FORMAT_JSON) {
-        return json_encode(...);
-    }
-
-    return Stylish\format(...);
+    return match ($format) {
+        FORMAT_PLAIN => fn(array $buildDiff) => Plain\format($buildDiff),
+        FORMAT_JSON => fn(array $buildDiff) => json_encode($buildDiff),
+        default => fn(array $buildDiff) => Stylish\format($buildDiff),
+    };
 }

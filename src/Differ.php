@@ -5,34 +5,31 @@ namespace Differ\Differ;
 use SplFileInfo;
 
 use function Functional\sort;
-use function Differ\Parsers\getParsers;
+use function Differ\Parsers\getParser;
 use function Differ\Formatters\format;
 
 use const Differ\Formatters\FORMAT_STYLISH;
 
 function genDiff(string $pathToFile1, string $pathToFile2, string $formatName = FORMAT_STYLISH): string
 {
-    $info = new SplFileInfo($pathToFile1);
-    $extension = $info->getExtension();
+    $component1 = getComponent($pathToFile1);
+    $component2 = getComponent($pathToFile2);
 
-    $arr1 = parsers($extension, $pathToFile1);
-    $arr2 = parsers($extension, $pathToFile2);
-
-    $buildDiff = buildDiff($arr1, $arr2);
+    $buildDiff = buildDiff($component1, $component2);
 
     $format = format($formatName);
 
     return $format($buildDiff);
 }
 
-function parsers(string $extension, string $pathToFile): array
+function getComponent(string $pathToFile): array
 {
-    $getParsers = getParsers($extension);
+    $info = new SplFileInfo($pathToFile);
+    $extension = $info->getExtension();
+    $parser = getParser($extension);
+    $content = $extension === 'yml' || $extension === 'yaml' ? $pathToFile : file_get_contents($pathToFile);
 
-    if ($extension === 'yml' || $extension === 'yaml') {
-        return $getParsers($pathToFile);
-    }
-    return $getParsers(file_get_contents($pathToFile), true);
+    return $parser($content);
 }
 
 function buildDiff(array $arr1, array $arr2): array
