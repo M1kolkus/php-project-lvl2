@@ -6,7 +6,7 @@ use SplFileInfo;
 
 use function Differ\Tree\createNode;
 use function Differ\Parsers\getParser;
-use function Differ\Formatters\format;
+use function Differ\Formatters\getFormatter;
 use function Functional\sort;
 
 use const Differ\Formatters\FORMAT_STYLISH;
@@ -24,7 +24,7 @@ function genDiff(string $pathToFile1, string $pathToFile2, string $formatName = 
 
     $buildDiff = buildDiff($component1, $component2);
 
-    $format = format($formatName);
+    $format = getFormatter($formatName);
 
     return $format($buildDiff);
 }

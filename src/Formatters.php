@@ -9,7 +9,7 @@ const FORMAT_STYLISH = 'stylish';
 const FORMAT_PLAIN = 'plain';
 const FORMAT_JSON = 'json';
 
-function format(string $format): callable
+function getFormatter(string $format): callable
 {
     return match ($format) {
         FORMAT_PLAIN => fn(array $buildDiff) => Plain\format($buildDiff),

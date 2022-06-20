@@ -37,9 +37,34 @@ function getType(array $node): string
     return $node['type'];
 }
 
+function isObject(array $node): bool
+{
+    return getType($node) === TYPE_OBJECT;
+}
+
+function isOldObject(array $node): bool
+{
+    return getOldType($node) === TYPE_OBJECT;
+}
+
 function getOperation(array $node): string
 {
     return $node['operation'];
+}
+
+function isChanged(array $node): bool
+{
+    return getOperation($node) === OPERATION_CHANGED;
+}
+
+function isAdded(array $node): bool
+{
+    return getOperation($node) === OPERATION_ADDED;
+}
+
+function isRemoved(array $node): bool
+{
+    return getOperation($node) === OPERATION_REMOVED;
 }
 
 function getValue(array $node)

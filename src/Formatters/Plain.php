@@ -3,16 +3,13 @@
 namespace Differ\Formatters\Plain;
 
 use function Differ\Tree\getKey;
-use function Differ\Tree\getOldType;
 use function Differ\Tree\getOldValue;
-use function Differ\Tree\getOperation;
-use function Differ\Tree\getType;
+use function Differ\Tree\isChanged;
+use function Differ\Tree\isObject;
+use function Differ\Tree\isOldObject;
+use function Differ\Tree\isAdded;
+use function Differ\Tree\isRemoved;
 use function Differ\Tree\getValue;
-
-use const Differ\Tree\OPERATION_ADDED;
-use const Differ\Tree\OPERATION_CHANGED;
-use const Differ\Tree\OPERATION_REMOVED;
-use const Differ\Tree\TYPE_OBJECT;
 
 function format(array $value): string
 {
@@ -24,30 +21,30 @@ function toPlain(array $value, string $parents): string
     $lines = array_map(function ($node) use ($parents) {
         $key = getKey($node);
         $path = "{$parents}{$key}";
-        $stringNewValue = getType($node) === TYPE_OBJECT ? '[complex value]' : string(getValue($node));
+        $stringNewValue = isObject($node) ? '[complex value]' : string(getValue($node));
 
-        if (getOperation($node) === OPERATION_ADDED) {
+        if (isAdded($node)) {
             return "Property '{$path}' was added with value: {$stringNewValue}";
         }
 
-        if (getOperation($node) === OPERATION_REMOVED) {
+        if (isRemoved($node)) {
             return "Property '{$path}' was removed";
         }
 
-        if (getOperation($node) === OPERATION_CHANGED) {
-            $stringOldValue = getOldType($node) === TYPE_OBJECT ? '[complex value]' : string(getOldValue($node));
+        if (isChanged($node)) {
+            $stringOldValue = isOldObject($node) ? '[complex value]' : string(getOldValue($node));
 
             return "Property '{$path}' was updated. From {$stringOldValue} to {$stringNewValue}";
         }
 
-        if (getType($node) === TYPE_OBJECT) {
+        if (isObject($node)) {
             return toPlain(getValue($node), "{$path}.");
         }
 
         return null;
     }, $value);
 
-    return implode("\n", array_filter($lines, fn ($value) => !is_null($value)));
+    return implode("\n", array_filter($lines));
 }
 
 function string(mixed $node): string

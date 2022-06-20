@@ -5,36 +5,27 @@ namespace Differ\Formatters\Stylish;
 use function Differ\Tree\getKey;
 use function Differ\Tree\getOldValue;
 use function Differ\Tree\getOperation;
+use function Differ\Tree\isChanged;
 use function Differ\Tree\getValue;
 
 use const Differ\Tree\OPERATION_ADDED;
-use const Differ\Tree\OPERATION_CHANGED;
 use const Differ\Tree\OPERATION_REMOVED;
 
 function format(array $value): string
 {
     $iter = function ($currentValue, $level = 1) use (&$iter) {
-        if (is_string($currentValue) || is_numeric($currentValue)) {
-            return (string)$currentValue;
-        }
-
-        if (is_bool($currentValue)) {
-            return $currentValue ? 'true' : 'false';
-        }
-
-        if ($currentValue === null) {
-            return 'null';
+        if (is_scalar($currentValue) || $currentValue === null) {
+            return (string) $currentValue;
         }
 
         $currentReplacer = getReplacer('  ', 1, $level);
 
         $lines = array_map(function ($value) use ($level, $iter, $currentReplacer) {
-
             $key = getKey($value);
             $getValue = getValue($value);
             $oldValue = getOldValue($value);
 
-            if (getOperation($value) === OPERATION_CHANGED) {
+            if (isChanged($value)) {
                 return [
                     "{$currentReplacer}- {$key}: {$iter($oldValue, $level + 2)}",
                     "{$currentReplacer}+ {$key}: {$iter($getValue, $level + 2)}",
