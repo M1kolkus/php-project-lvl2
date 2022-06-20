@@ -21,7 +21,7 @@ function toPlain(array $value, string $parents): string
     $lines = array_map(function ($node) use ($parents) {
         $key = getKey($node);
         $path = "{$parents}{$key}";
-        $stringNewValue = isObject($node) ? '[complex value]' : string(getValue($node));
+        $stringNewValue = isObject($node) ? '[complex value]' : toString(getValue($node));
 
         if (isAdded($node)) {
             return "Property '{$path}' was added with value: {$stringNewValue}";
@@ -32,7 +32,7 @@ function toPlain(array $value, string $parents): string
         }
 
         if (isChanged($node)) {
-            $stringOldValue = isOldObject($node) ? '[complex value]' : string(getOldValue($node));
+            $stringOldValue = isOldObject($node) ? '[complex value]' : toString(getOldValue($node));
 
             return "Property '{$path}' was updated. From {$stringOldValue} to {$stringNewValue}";
         }
@@ -47,7 +47,7 @@ function toPlain(array $value, string $parents): string
     return implode("\n", array_filter($lines));
 }
 
-function string(mixed $node): string
+function toString(mixed $node): string
 {
     if (is_numeric($node)) {
         return (string)$node;

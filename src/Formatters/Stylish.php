@@ -15,7 +15,7 @@ function format(array $value): string
 {
     $iter = function ($currentValue, $level = 1) use (&$iter) {
         if (is_scalar($currentValue) || $currentValue === null) {
-            return (string) $currentValue;
+            return toString($currentValue);
         }
 
         $currentReplacer = getReplacer('  ', 1, $level);
@@ -62,4 +62,21 @@ function getSign(string $operation): string
     }
 
     return '  ';
+}
+
+function toString(mixed $node): string
+{
+    if (is_numeric($node)) {
+        return (string)$node;
+    }
+
+    if (is_bool($node)) {
+        return $node ? 'true' : 'false';
+    }
+
+    if ($node === null) {
+        return 'null';
+    }
+
+    return (string)$node;
 }
