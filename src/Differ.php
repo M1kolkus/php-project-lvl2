@@ -4,16 +4,23 @@ namespace Differ\Differ;
 
 use SplFileInfo;
 
-use function Functional\sort;
+use function Differ\Tree\createNode;
 use function Differ\Parsers\getParser;
 use function Differ\Formatters\format;
+use function Functional\sort;
 
 use const Differ\Formatters\FORMAT_STYLISH;
+use const Differ\Tree\OPERATION_ADDED;
+use const Differ\Tree\OPERATION_CHANGED;
+use const Differ\Tree\OPERATION_NOT_CHANGED;
+use const Differ\Tree\OPERATION_REMOVED;
+use const Differ\Tree\TYPE_OBJECT;
+use const Differ\Tree\TYPE_SIMPLE;
 
 function genDiff(string $pathToFile1, string $pathToFile2, string $formatName = FORMAT_STYLISH): string
 {
-    $component1 = getComponent($pathToFile1);
-    $component2 = getComponent($pathToFile2);
+    $component1 = getContent($pathToFile1);
+    $component2 = getContent($pathToFile2);
 
     $buildDiff = buildDiff($component1, $component2);
 
@@ -22,7 +29,7 @@ function genDiff(string $pathToFile1, string $pathToFile2, string $formatName = 
     return $format($buildDiff);
 }
 
-function getComponent(string $pathToFile): array
+function getContent(string $pathToFile): array
 {
     $info = new SplFileInfo($pathToFile);
     $extension = $info->getExtension();
@@ -41,44 +48,46 @@ function buildDiff(array $arr1, array $arr2): array
     return array_reduce($sortedKeys, function (array $acc, string $key) use ($arr1, $arr2) {
         $existsInFirstArray = array_key_exists($key, $arr1);
         $existsInSecondArray = array_key_exists($key, $arr2);
+        $firstIsObject = $existsInFirstArray && is_array($arr1[$key]);
+        $secondIsObject = $existsInSecondArray && is_array($arr2[$key]);
 
-        $value = array_key_exists($key, $arr2) ? $arr2[$key] : $arr1[$key];
+        if ($firstIsObject && $secondIsObject) {
+            $node = createNode($key, TYPE_OBJECT, OPERATION_NOT_CHANGED, buildDiff($arr1[$key], $arr2[$key]));
 
-        if (is_array($value)) {
-            $type = 'object';
-            $newValue = buildDiff($value, $value);
-        } else {
-            $type = 'simple';
+            return [...$acc, $node];
+        }
+
+        if ($existsInFirstArray && $existsInSecondArray && $arr1[$key] !== $arr2[$key]) {
+            $value1 = $firstIsObject ? buildDiff($arr1[$key], $arr1[$key]) : $arr1[$key];
+            $value2 = $secondIsObject ? buildDiff($arr2[$key], $arr2[$key]) : $arr2[$key];
+
+            $node = createNode(
+                $key,
+                $secondIsObject ? TYPE_OBJECT : TYPE_SIMPLE,
+                OPERATION_CHANGED,
+                $value2,
+                $firstIsObject ? TYPE_OBJECT : TYPE_SIMPLE,
+                $value1,
+            );
+
+            return [...$acc, $node];
         }
 
         if ($existsInFirstArray && $existsInSecondArray) {
-            if (is_array($arr1[$key]) && is_array($arr2[$key])) {
-                $operation = 'not_changed';
-                $valueChildren = buildDiff($arr1[$key], $arr2[$key]);
-            } elseif ($arr1[$key] === $arr2[$key]) {
-                $operation = 'not_changed';
-            } else {
-                $operation = 'changed';
-                $oldValue = is_array($arr1[$key]) ? buildDiff($arr1[$key], $arr1[$key]) : $arr1[$key];
+            $node = createNode($key, TYPE_SIMPLE, OPERATION_NOT_CHANGED, $arr1[$key]);
 
-                if (is_array($arr1[$key]) !== is_array($arr2[$key])) {
-                    $oldType = is_array($arr1[$key]) ? 'object' : 'simple';
-                }
-            }
-        } elseif ($existsInFirstArray) {
-            $operation = 'disappeared';
-        } else {
-            $operation = 'appeared';
+            return [...$acc, $node];
         }
 
-        $node = [
-            'key' => $key,
-            'type' => $type,
-            'oldType' => $oldType ?? null,
-            'operation' => $operation,
-            'value' => $valueChildren ?? $newValue ?? $value,
-            'oldValue' => $oldValue ?? null,
-        ];
+        if ($existsInFirstArray) {
+            $value = $firstIsObject ? buildDiff($arr1[$key], $arr1[$key]) : $arr1[$key];
+            $node = createNode($key, $firstIsObject ? TYPE_OBJECT : TYPE_SIMPLE, OPERATION_REMOVED, $value);
+
+            return [...$acc, $node];
+        }
+
+        $value = $secondIsObject ? buildDiff($arr2[$key], $arr2[$key]) : $arr2[$key];
+        $node = createNode($key, $secondIsObject ? TYPE_OBJECT : TYPE_SIMPLE, OPERATION_ADDED, $value);
 
         return [...$acc, $node];
     }, []);

@@ -2,6 +2,18 @@
 
 namespace Differ\Formatters\Plain;
 
+use function Differ\Tree\getKey;
+use function Differ\Tree\getOldType;
+use function Differ\Tree\getOldValue;
+use function Differ\Tree\getOperation;
+use function Differ\Tree\getType;
+use function Differ\Tree\getValue;
+
+use const Differ\Tree\OPERATION_ADDED;
+use const Differ\Tree\OPERATION_CHANGED;
+use const Differ\Tree\OPERATION_REMOVED;
+use const Differ\Tree\TYPE_OBJECT;
+
 function format(array $value): string
 {
     return toPlain($value, '');
@@ -10,34 +22,26 @@ function format(array $value): string
 function toPlain(array $value, string $parents): string
 {
     $lines = array_map(function ($node) use ($parents) {
-        $path = "{$parents}{$node['key']}";
+        $key = getKey($node);
+        $path = "{$parents}{$key}";
+        $stringNewValue = getType($node) === TYPE_OBJECT ? '[complex value]' : string(getValue($node));
 
-        if ($node['type'] === 'object') {
-            $stringNewValue = '[complex value]';
-        } else {
-            $stringNewValue = string($node['value']);
-        }
-
-        if ($node['operation'] === 'appeared') {
+        if (getOperation($node) === OPERATION_ADDED) {
             return "Property '{$path}' was added with value: {$stringNewValue}";
         }
 
-        if ($node['operation'] === 'disappeared') {
+        if (getOperation($node) === OPERATION_REMOVED) {
             return "Property '{$path}' was removed";
         }
 
-        if ($node['operation'] === 'changed') {
-            if (array_key_exists('oldType', $node) && $node['oldType'] === 'object') {
-                $stringOldValue = '[complex value]';
-            } else {
-                $stringOldValue = string($node['oldValue']);
-            }
+        if (getOperation($node) === OPERATION_CHANGED) {
+            $stringOldValue = getOldType($node) === TYPE_OBJECT ? '[complex value]' : string(getOldValue($node));
 
             return "Property '{$path}' was updated. From {$stringOldValue} to {$stringNewValue}";
         }
 
-        if ($node['type'] === 'object') {
-            return toPlain($node['value'], "{$path}.");
+        if (getType($node) === TYPE_OBJECT) {
+            return toPlain(getValue($node), "{$path}.");
         }
 
         return null;

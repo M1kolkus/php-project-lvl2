@@ -2,6 +2,15 @@
 
 namespace Differ\Formatters\Stylish;
 
+use function Differ\Tree\getKey;
+use function Differ\Tree\getOldValue;
+use function Differ\Tree\getOperation;
+use function Differ\Tree\getValue;
+
+use const Differ\Tree\OPERATION_ADDED;
+use const Differ\Tree\OPERATION_CHANGED;
+use const Differ\Tree\OPERATION_REMOVED;
+
 function format(array $value): string
 {
     $iter = function ($currentValue, $level = 1) use (&$iter) {
@@ -20,16 +29,21 @@ function format(array $value): string
         $currentReplacer = getReplacer('  ', 1, $level);
 
         $lines = array_map(function ($value) use ($level, $iter, $currentReplacer) {
-            if ($value['operation'] === 'changed') {
+
+            $key = getKey($value);
+            $getValue = getValue($value);
+            $oldValue = getOldValue($value);
+
+            if (getOperation($value) === OPERATION_CHANGED) {
                 return [
-                    "{$currentReplacer}- {$value['key']}: {$iter($value['oldValue'], $level + 2)}",
-                    "{$currentReplacer}+ {$value['key']}: {$iter($value['value'], $level + 2)}",
+                    "{$currentReplacer}- {$key}: {$iter($oldValue, $level + 2)}",
+                    "{$currentReplacer}+ {$key}: {$iter($getValue, $level + 2)}",
                 ];
             }
 
-            $sign = getSign($value['operation']);
+            $sign = getSign(getOperation($value));
 
-            return ["{$currentReplacer}{$sign}{$value['key']}: {$iter($value['value'], $level + 2)}"];
+            return ["{$currentReplacer}{$sign}{$key}: {$iter($getValue, $level + 2)}"];
         }, $currentValue);
 
         $mergedLines = array_merge(...$lines);
@@ -48,17 +62,17 @@ function getReplacer(string $replacer, int $spacesCount, int $level): string
 
 function getSign(string $operation): string
 {
-    if ($operation === 'not_changed') {
+    if ($operation === OPERATION_CHANGED) {
         return '  ';
     }
 
-    if ($operation === 'disappeared') {
+    if ($operation === OPERATION_REMOVED) {
         return '- ';
     }
 
-    if ($operation === 'appeared') {
+    if ($operation === OPERATION_ADDED) {
         return '+ ';
     }
 
-    return '';
+    return '  ';
 }
