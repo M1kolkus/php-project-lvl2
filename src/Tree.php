@@ -9,8 +9,14 @@ const OPERATION_NOT_CHANGED = 'not_changed';
 const TYPE_SIMPLE = 'simple';
 const TYPE_OBJECT = 'object';
 
-function createNode(string $key, string $type, string $operation, $value, $oldType = null, $oldValue = null): array
-{
+function createNode(
+    string $key,
+    string $type,
+    string $operation,
+    mixed $value,
+    mixed $oldType = null,
+    mixed $oldValue = null,
+): array {
     return [
         'key' => $key,
         'type' => $type,
