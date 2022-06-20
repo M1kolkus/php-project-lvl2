@@ -62,10 +62,6 @@ function getReplacer(string $replacer, int $spacesCount, int $level): string
 
 function getSign(string $operation): string
 {
-    if ($operation === OPERATION_CHANGED) {
-        return '  ';
-    }
-
     if ($operation === OPERATION_REMOVED) {
         return '- ';
     }
